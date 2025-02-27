@@ -17,3 +17,9 @@ It will create 2 files:
 
 - existing_cameras.geojson City of Calgary cameras that already have a matching camera in OpenStreetMap
 - new_cameras.geojson City of Calgary cameras that could not be matched to a speed_camera in OpenStreetMap
+
+#### Related changesets
+
+- [162994872](https://www.openstreetmap.org/changeset/162994872)
+- [162995682](https://www.openstreetmap.org/changeset/162995682)
+- [162995871](https://www.openstreetmap.org/changeset/162995871)
