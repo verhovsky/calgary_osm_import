@@ -2,9 +2,7 @@ Download the data as GeoJSON from here
 
 https://data.calgary.ca/Transportation-Transit/Street-Centreline/4dx8-rtm5/about_data
 
-Then save the result of this query as streets.geojson
-
-https://overpass-turbo.eu/s/1Zn5
+and save it as Street Centreline.geojson (remove the download date from the filename)
 
 Then run the Python script like this
 
@@ -13,10 +11,11 @@ pip install geopandas
 python names.py
 ```
 
-it will create two files
+it will print missing street names in each dataset and their closest match and then create three files
 
-- osm_not_in_coc.geojson streets in OpenStreetMap that don't have a street with the same name in City of Calgary data
-- coc_not_in_osm.geojson streets in the City of Calgary data that don't have a street with the same name in OpenStreetMap
+- osm_not_in_coc.geojson Calgary streets in OpenStreetMap that don't have a street with the same name in City of Calgary data
+- coc_not_in_osm.geojson streets in City of Calgary open data that don't have a street with the same name in OpenStreetMap
+- osm_streets.geojson all named streets in Calgary in OpenStreetMap
 
 Useful reasons for discrepancies are
 
