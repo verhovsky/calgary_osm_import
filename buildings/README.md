@@ -1,8 +1,8 @@
-# Building outlines
+# [Building outlines](https://data.calgary.ca/Base-Maps/Building-Roof-Outlines/sh7p-758r)
 
 Download the data as GeoJSON from
 
-https://data.calgary.ca/Base-Maps/Building-Roof-Outlines/sh7p-758r
+https://data.calgary.ca/Base-Maps/Buildings/uc4c-6kbd/about_data
 
 and save it as Buildings.geojson (remove the download date)
 
@@ -44,10 +44,11 @@ it overlaps with any existing building(s) in OpenStreetMap. To import the data, 
 
 1. Click "Validation", there will probably be a couple overlapping buildings, separate them. Buildings with holes (courtyards) need to be converted to relations
 2. Check that every building is classified correctly using the "Building Colors" map paint style
-3. Download OSM data for the current region and merge the OSM layer and neighborhood CoC outlines layer
-4. Search for `type:way overlap_count:` and decide what to do with each overlapping outline. Usually you want to select both overlapping outlines and do "Replace Geometry" (or Ctrl-Shift-G) to replace the OSM building's geometry with the CoC geometry or delete the CoC outline if the existing OSM outline is good. Do this until there's no overlapping buildings
-5. Click "Validation" and fix all "Crossing \<whatever\>/building" and "Overlap \<whatever\>/building" warnings
-6. Search for `overlap_count:` and delete all the `overlap_count` keys, they should not be uploaded to OpenStreetMap
-7. Upload the data
+3. Optionally convert `building=residential` to a more specific residence type
+4. Download OSM data for the current region and merge the OSM layer and neighborhood CoC outlines layer
+5. Search for `type:way overlap_count:` and decide what to do with each overlapping outline. Usually you want to select both overlapping outlines and do "Replace Geometry" (or Ctrl-Shift-G) to replace the OSM building's geometry with the CoC geometry or delete the CoC outline if the existing OSM outline is good. Do this until there's no overlapping buildings
+6. Click "Validation" and fix all "Crossing \<whatever\>/building" and "Overlap \<whatever\>/building" warnings
+7. Search for `overlap_count:` and delete all the `overlap_count` keys, they should not be uploaded to OpenStreetMap
+8. Upload the data
 
 Verify there's no accidentally uploaded `overlap_count` keys in OSM at https://overpass-turbo.eu/s/1ZRW

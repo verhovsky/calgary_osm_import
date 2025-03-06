@@ -155,7 +155,6 @@ print(result)
 
 # Find CoC buildings that overlap with an OSM building
 osm_only = osm[~osm["osm_id"].isin(result["osm_id"])]
-breakpoint()
 coc["overlap_count"] = (
     coc["coc_id"].map(result.groupby("coc_id")["osm_id"].nunique()).astype("Int64")
 )
@@ -207,6 +206,8 @@ for name, group in coc_by_neighborhoods.groupby("name"):
     overlap_counts[name] = (overlap_count, building_count)
 
 print()
-print("Neighborhoods by number of buildings with OSM overlap:")
-for name, count in sorted(overlap_counts.items(), key=lambda x: x[1][0], reverse=True):
+print("Neighborhoods by number of buildings without OSM overlap:")
+for name, count in sorted(
+    overlap_counts.items(), key=lambda x: (x[1][1] - x[1][0]) / x[1][1], reverse=True
+):
     print(f"{name}: {count[0]}/{count[1]}")
