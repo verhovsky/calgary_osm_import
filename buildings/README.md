@@ -43,7 +43,7 @@ and a neighborhoods/ directory, with City of Calgary buildings grouped by the ne
 it overlaps with any existing building(s) in OpenStreetMap. To import the data, open one of the neighborhoods in JOSM and
 
 1. Click "Validation", there will probably be a couple overlapping buildings, separate them. Buildings with holes (courtyards) need to be converted to relations
-2. Check that every building is classified correctly. Search each `building=` value in the data and look over the neighborhood
+2. Check that every building is classified correctly using the "Building Colors" map paint style
 3. Download OSM data for the current region and merge the OSM layer and neighborhood CoC outlines layer
 4. Search for `type:way overlap_count:` and decide what to do with each overlapping outline. Usually you want to select both overlapping outlines and do "Replace Geometry" (or Ctrl-Shift-G) to replace the OSM building's geometry with the CoC geometry or delete the CoC outline if the existing OSM outline is good. Do this until there's no overlapping buildings
 5. Click "Validation" and fix all "Crossing \<whatever\>/building" and "Overlap \<whatever\>/building" warnings
