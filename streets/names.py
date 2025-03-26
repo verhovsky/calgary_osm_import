@@ -103,6 +103,9 @@ def coc_special_cases(name):
 coc["osm_name"] = coc.apply(to_osm_name, axis=1)
 coc["join_key"] = coc["osm_name"].str.lower().apply(coc_special_cases)
 
+# rename column so iD shows the name when loading the file
+coc["_name"] = coc["name"]
+coc["name"] = coc["osm_name"]
 
 osm = ox.features_from_place(
     "Calgary, Alberta, Canada",
@@ -191,24 +194,28 @@ coc_not_in_osm.to_file("coc_not_in_osm.geojson", driver="GeoJSON")
 osm_keys = set(osm_not_in_coc["join_key"])
 coc_keys = set(coc_not_in_osm["join_key"])
 
-print(f"{len(osm_keys)} OSM keys not in CoC", file=sys.stderr)
-for key in sorted(osm_keys):
-    name = osm[osm["join_key"] == key].iloc[0]["name"]
-    # find the closest match in coc_keys
-    closest = difflib.get_close_matches(key, coc_keys, n=3)
-    print(f"{name} ({key})", file=sys.stderr)
-    for c in closest:
-        c_name = coc[coc["join_key"] == c].iloc[0]["osm_name"]
-        print(f"    {c_name} ({c})", file=sys.stderr)
-
+# print(f"{len(osm_keys)} OSM keys not in CoC", file=sys.stderr)
+# for key in sorted(osm_keys):
+#     name = osm[osm["join_key"] == key].iloc[0]["name"]
+#     # find the closest match in coc_keys
+#     closest = difflib.get_close_matches(key, coc_keys, n=3)
+#     print(f"{name} ({key})", file=sys.stderr)
+#     for c in closest:
+#         c_name = coc[coc["join_key"] == c].iloc[0]["osm_name"]
+#         print(f"    {c_name} ({c})", file=sys.stderr)
+#
+#
+# print()
+# print(f"{len(coc_keys)} CoC keys not in OSM", file=sys.stderr)
+# for key in sorted(coc_keys):
+#     name = coc[coc["join_key"] == key].iloc[0]["osm_name"]
+#     # find the closest match in coc_keys
+#     closest = difflib.get_close_matches(key, osm_keys, n=3)
+#     print(f"{name} ({key})", file=sys.stderr)
+#     for c in closest:
+#         c_name = osm[osm["join_key"] == c].iloc[0]["name"]
+#         print(f"    {c_name} ({c})", file=sys.stderr)
 
 print()
-print(f"{len(coc_keys)} CoC keys not in OSM", file=sys.stderr)
-for key in sorted(coc_keys):
-    name = coc[coc["join_key"] == key].iloc[0]["osm_name"]
-    # find the closest match in coc_keys
-    closest = difflib.get_close_matches(key, osm_keys, n=3)
-    print(f"{name} ({key})", file=sys.stderr)
-    for c in closest:
-        c_name = osm[osm["join_key"] == c].iloc[0]["name"]
-        print(f"    {c_name} ({c})", file=sys.stderr)
+print(f"{len(coc_keys)} CoC street names not in OSM", file=sys.stderr)
+print(f"{len(osm_keys)} OSM street names not in CoC", file=sys.stderr)

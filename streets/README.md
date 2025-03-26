@@ -7,7 +7,7 @@ and save it as Street Centreline.geojson (remove the download date from the file
 Then run the Python script like this
 
 ```sh
-pip install geopandas
+pip install geopandas osmnx
 python names.py
 ```
 
