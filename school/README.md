@@ -14,6 +14,10 @@ pip install osmnx geopandas
 python building_names.py
 ```
 
+### Other checks
+
+`school` nodes: https://overpass-turbo.eu/s/1ZPO
+
 #### Related changesets
 
 - [163235310](https://www.openstreetmap.org/changeset/163235310)
