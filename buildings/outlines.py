@@ -15,6 +15,7 @@ args = args.parse_args()
 cache = not args.no_cache
 
 FILENAME = Path("Buildings.geojson")
+ADDRESS_FILENAME = Path("Parcel_Address.geojson")
 OUTPUT_DIR = Path("buildings")
 
 # caching files
@@ -92,17 +93,6 @@ def load_shifted():
     return gdf
 
 
-def download_buildings(bbox):
-    if OSM_FILENAME.exists() and cache:
-        return gpd.read_file(OSM_FILENAME)
-    gdf = ox.features.features_from_bbox(bbox, {"building": True})
-    gdf["geometry"] = gdf["geometry"].simplify(
-        tolerance=0.000001, preserve_topology=True
-    )
-    save_without_nulls(gdf, OSM_FILENAME)
-    return gdf
-
-
 def download_neighborhoods(place: str) -> gpd.GeoDataFrame:
     if NEIGHBORHOODS_FILENAME.exists() and cache:
         return gpd.read_file(NEIGHBORHOODS_FILENAME)
@@ -140,40 +130,7 @@ def save_without_nulls(gdf, filename):
 # Load Calgary buildings data
 coc = load_shifted()
 print(coc)
-
-# Load OSM data
-osm = download_buildings(coc.total_bounds)
-print(osm)
-# for c in osm.columns:
-#     print(c)
-
-# Perform spatial join
-osm["osm_id"] = range(1, len(osm) + 1)
-coc["coc_id"] = range(1, len(coc) + 1)
-result = gpd.sjoin(coc, osm, how="inner")
-print(result)
-
-# Find CoC buildings that overlap with an OSM building
-osm_only = osm[~osm["osm_id"].isin(result["osm_id"])]
-coc["overlap_count"] = (
-    coc["coc_id"].map(result.groupby("coc_id")["osm_id"].nunique()).astype("Int64")
-)
-
-print(f"City of Calgary buildings: {len(coc)}")
-print(f"OSM buildings: {len(osm)}")
-print(f"OSM only: {len(osm_only)}")
-# print(coc["overlap_count"].value_counts())
-
-OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
-save(
-    coc.copy().drop(columns=["coc_id"]),
-    OUTPUT_DIR / "coc.geojson",
-)
-save_without_nulls(
-    osm_only.copy().drop(columns=["osm_id"]),
-    OUTPUT_DIR / "osm_only.geojson",
-)
-print("Saved results")
+coc["coc_id"] = range(len(coc))
 
 # Split results by neighborhood and print
 neighborhoods = download_neighborhoods("Calgary, Alberta, Canada")
@@ -196,18 +153,30 @@ save(
     OUTPUT_DIR / "coc_outside_calgary.geojson",
 )
 
-# Print neighborhood names sorted by number of total of overlap_counts
-overlap_counts = {}
-for name, group in coc_by_neighborhoods.groupby("name"):
-    neighborhood_buildings = coc[coc["coc_id"].isin(group["coc_id"])]
-    # convert overlap_count to 0 or 1
-    overlap_count = (neighborhood_buildings["overlap_count"] > 0).sum()
-    building_count = len(neighborhood_buildings)
-    overlap_counts[name] = (overlap_count, building_count)
+coc_addresses = gpd.read_file(ADDRESS_FILENAME)
+print(coc_addresses)
+coc_addresses["coc_id"] = range(len(coc_addresses))
 
-print()
-print("Neighborhoods by number of buildings without OSM overlap:")
-for name, count in sorted(
-    overlap_counts.items(), key=lambda x: (x[1][1] - x[1][0]) / x[1][1], reverse=True
-):
-    print(f"{name}: {count[0]}/{count[1]}")
+# split addresses by neighborhood
+coc_by_neighborhoods = gpd.sjoin(coc_addresses, neighborhoods, how="inner")
+print(coc_by_neighborhoods)
+
+neighborhood_dir = OUTPUT_DIR / "addresses"
+neighborhood_dir.mkdir(exist_ok=True, parents=True)
+for name, group in coc_by_neighborhoods.groupby("name"):
+    safe_name = name.replace("/", "_")
+    neighborhood_buildings = coc_addresses[
+        coc_addresses["coc_id"].isin(group["coc_id"])
+    ]
+    save(
+        neighborhood_buildings.copy().drop(columns=["coc_id"]),
+        neighborhood_dir / f"{safe_name}.geojson",
+    )
+    # print(f"Saved {name}")
+no_neighborhood = coc_addresses[
+    ~coc_addresses["coc_id"].isin(coc_by_neighborhoods["coc_id"])
+]
+save(
+    no_neighborhood.copy().drop(columns=["coc_id"]),
+    OUTPUT_DIR / "coc_addresses_outside_calgary.geojson",
+)
