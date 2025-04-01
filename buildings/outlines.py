@@ -15,7 +15,7 @@ args = args.parse_args()
 cache = not args.no_cache
 
 FILENAME = Path("Buildings.geojson")
-ADDRESS_FILENAME = Path("Parcel_Address.geojson")
+ADDRESS_FILENAME = Path("Parcel_Address_osm.geojson")
 OUTPUT_DIR = Path("buildings")
 
 # caching files
@@ -150,7 +150,7 @@ for name, group in coc_by_neighborhoods.groupby("name"):
 no_neighborhood = coc[~coc["coc_id"].isin(coc_by_neighborhoods["coc_id"])]
 save(
     no_neighborhood.copy().drop(columns=["coc_id"]),
-    OUTPUT_DIR / "coc_outside_calgary.geojson",
+    OUTPUT_DIR / "outside_calgary.geojson",
 )
 
 coc_addresses = gpd.read_file(ADDRESS_FILENAME)

@@ -26,24 +26,55 @@ Stadium                                          13
 
 Some of the categories like `Bus Shelter` are handled separately.
 
-Download parcel address data from
+Download parcel address data (as a CSV, if you try GeoJSON it downloads an empty file) from
 
 https://data.calgary.ca/Base-Maps/Parcel-Address/9zvu-p8uz/about_data
 
-and save it as "Parcel Address.geojson" (remove download date)
+and save it as "Parcel Address.csv" (remove download date)
 
 Run the Python code like this:
 
 ```sh
 pip install geopandas shapely osmnx
+python osmify_addresses.py
 python outlines.py
 ```
 
-it will create a directory buildings/ with:
+osmify_addresses.py converts an address like this
+
+```py
+{
+    "STREET_NAME": "CENTRE",
+    "STREET_TYPE": "ST",
+    "STREET_QUAD": "SW",
+    "HOUSE_NUMBER": "1",
+    "HOUSE_ALPHA": "A"
+}
+```
+
+into
+
+```py
+{
+    "addr:unit": "A",
+    "addr:housenumber": "1",
+    "addr:street": "Centre Street SW"
+}
+```
+
+where the generated `addr:street` column is always a street name already in Open Street Map (somewhere in Calgary, there's no check that it's actually near the address point).
+
+osmify_addresses.py outputs two files:
+
+- Parcel_Address_osm.geojson with the converted data
+- Parcel_Address_not_in_osm.geojson address points where the generated `addr:street` value doesn't have a matching street in Open Street Map
+
+
+outlines.py will use Parcel_Address_osm.geojson and Buildings.geojson and create a directory buildings/ with:
 
 - neighborhoods/ a directory with outlines split into neighborhoods (buildings that straddle a neighborhood boundary and might be duplicated accross neighborhoods)
 - addresses/ address points split into neighborhoods
-- coc_outside_calgary.geojson outlines outside the legal city bounds
+- outside_calgary.geojson outlines outside the legal city bounds
 
 and a neighborhoods/ directory, with City of Calgary buildings grouped by the neighborhood they're in. Each geometry will also have an `overlap_count` column if
 it overlaps with any existing building(s) in OpenStreetMap. To import the data, open one of the neighborhoods in JOSM and
