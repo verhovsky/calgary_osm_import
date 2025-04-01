@@ -38,6 +38,7 @@ Run the Python code like this:
 pip install geopandas shapely osmnx
 python osmify_addresses.py
 python outlines.py
+python gen_open.py
 ```
 
 osmify_addresses.py converts an address like this
@@ -69,15 +70,19 @@ osmify_addresses.py outputs two files:
 - Parcel_Address_osm.geojson with the converted data
 - Parcel_Address_not_in_osm.geojson address points where the generated `addr:street` value doesn't have a matching street in Open Street Map
 
-
 outlines.py will use Parcel_Address_osm.geojson and Buildings.geojson and create a directory buildings/ with:
 
 - neighborhoods/ a directory with outlines split into neighborhoods (buildings that straddle a neighborhood boundary and might be duplicated accross neighborhoods)
 - addresses/ address points split into neighborhoods
 - outside_calgary.geojson outlines outside the legal city bounds
 
-and a neighborhoods/ directory, with City of Calgary buildings grouped by the neighborhood they're in. Each geometry will also have an `overlap_count` column if
-it overlaps with any existing building(s) in OpenStreetMap. To import the data, open one of the neighborhoods in JOSM and
+gen_open.py is optional and only works on macOS. It generates a file for each neighborhood that (using [Remote Control](https://josm.openstreetmap.de/wiki/Help/Preferences/RemoteControl), which you need to enable, including the "Open local files" setting) when double clicked
+
+1. Opens the building outline file in JOSM
+2. Opens the address file
+3. Downloads OpenStreetMap data for that neighborhood's bounding box in JOSM and searches for `building:` in it
+
+To import the data, open one of the neighborhoods in JOSM and
 
 1. Click "Validation", there will probably be a couple overlapping buildings, separate them. Buildings with holes (courtyards) need to be converted to relations
 2. Check that every building is classified correctly using the "Building Colors" map paint style
@@ -109,3 +114,4 @@ Addresses are for land parcels, not buildings, so they
 - do not line up with the house outline, generally closer to the street than the house
 - duplexes will have two address points for the same building outline
 - appartment buildings/townhouses (and maybe some regular houses) usually have wrong "house" numbers that don't correspond to the actual house number, would require surveying to verify
+- parks (and sometimes even roads, railways and parking spaces) have addresses, these need to be removed
