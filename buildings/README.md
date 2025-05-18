@@ -106,6 +106,8 @@ Verify there's no accidentally uploaded `overlap_count` keys in OSM at https://o
 - building types are sometimes misclassified
 - outlines with holes (courtyards) need to be turned into `multipolygon` relations manually
 - sometimes there's an outline where there's just trees in Bing, so it's impossible to verify that there's something there
+- large buildings like schools/malls are sometimes mapped with multiple touching outlines
+- garbage rooms (?) in apartment complexes often mapped as garages
 
 ##### addresses
 
@@ -115,3 +117,4 @@ Addresses are for land parcels, not buildings, so they
 - duplexes will have two address points for the same building outline
 - appartment buildings/townhouses (and maybe some regular houses) usually have wrong "house" numbers that don't correspond to the actual house number, would require surveying to verify
 - parks (and sometimes even roads, railways and parking spaces) have addresses, these need to be removed
+- street names of houses on a street corner can be (arguably) wrong. The parcels could've been drawn along one street but if the last house is built exiting onto the other street then that is probably its street.

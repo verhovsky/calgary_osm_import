@@ -1,13 +1,23 @@
 #!/usr/bin/env python
-
+import os
+import subprocess
 from pathlib import Path
+
 import geopandas as gpd
 import requests
-import os
 
-neigh = "{{neigh}}"
+neighborhood = "{{neighborhood}}"
 
 folder = Path("{{folder}}")
+
+
+def enable_bing_imagery():
+    josm_url = "http://127.0.0.1:8111/imagery"
+    params = {
+        "id": "Bing",
+    }
+    response = requests.get(josm_url, params=params)
+    print(f"Enabling Bing imagery: {response.status_code} - {response.reason}")
 
 
 def open_file_in_josm(file_path):
@@ -43,7 +53,7 @@ def download_osm_data_for_bbox(bbox):
         "top": bbox[3],
         "new_layer": "true",
         "layer_name": "osm",
-        "search": "building:",
+        "search": "-type:relation building:",
     }
     response = requests.get(josm_url, params=params)
     print(
@@ -51,18 +61,25 @@ def download_osm_data_for_bbox(bbox):
     )
 
 
+subprocess.run(["open", "/Applications/JOSM.app"])
+
+enable_bing_imagery()
+
 # Path to the GeoJSON files
-file1 = folder / "addresses" / f"{neigh}.geojson"
-file2 = folder / "neighborhoods" / f"{neigh}.geojson"
+file1 = folder / "addresses" / f"{neighborhood}.geojson"
+file2 = folder / "neighborhoods" / f"{neighborhood}.geojson"
 
 # Open GeoJSON files in JOSM
 open_file_in_josm(file1)
 open_file_in_josm(file2)
 
 # Get and adjust the bounding box of the second file
-bbox = get_and_adjust_bbox(file2, 0.0001, 0.00005)
-with open("/tmp/aoeu.txt", "a") as f:
-    f.write(str(bbox))
-    f.write("\n")
-
+bbox1 = get_and_adjust_bbox(file1, 0.0001, 0.00005)
+bbox2 = get_and_adjust_bbox(file2, 0.0001, 0.00005)
+bbox = [
+    min(bbox1[0], bbox2[0]),
+    min(bbox1[1], bbox2[1]),
+    max(bbox1[2], bbox2[2]),
+    max(bbox1[3], bbox2[3]),
+]
 download_osm_data_for_bbox(bbox)
