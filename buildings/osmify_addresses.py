@@ -1,14 +1,7 @@
 import pandas as pd
-import sys
-from pathlib import Path
-import csv
-from io import StringIO
 
 import geopandas as gpd
-from shapely import wkt
-from shapely.geometry import Polygon, MultiPolygon
-from shapely.ops import transform
-import requests
+import osmnx as ox
 
 FILENAME = "Parcel_Address"
 IN_FILENAME = FILENAME + ".csv"
@@ -17,52 +10,30 @@ OUT_FILENAME = FILENAME + ".geojson"
 
 overpass_url = "http://overpass-api.de/api/interpreter"
 
-# Query to get all street names in Calgary in OSM
-overpass_query = """
-[out:csv("name";false)];
-area[name="Calgary"]->.calgary;
-(
-  way[highway][name](area.calgary);
-);
-out;
-"""
-
-bad_street_names = {
-    "cat walk",
-    "closed - unsafe",
-    "cycle crossing",
-    "cyclepath",
-    "earth",
-    "informal path (steep)",
-    "olympia Liqour",
-    "path 3",
-    "paved path",
-    "regional pathway",
-    "regional pathway bridge at Fish Creek LRT stn",
-    "riverside path",
-    "shared path",
-    "skywalk enclosed walkway",
-    "unpaved trail",
-}
-
-
 def fetch_street_names():
-    response = requests.get(overpass_url, params={"data": overpass_query})
-    response.raise_for_status()  # Raises a HTTPError for bad responses
-
-    # Parse the CSV data
-    data = StringIO(response.text)
-    reader = csv.reader(data)
-
-    # Store unique street names in a set for automatic deduplication
-    streets = set()
-    for row in reader:
-        if row:  # Ensure the row is not empty
-            streets.add(row[0])
-
-    streets = set(streets) - bad_street_names
-    # Convert the set to a sorted list
-    sorted_streets = list(sorted(streets))
+    osm = ox.features_from_place(
+        "Calgary, Alberta, Canada",
+        {
+            "highway": [
+                "motorway",
+                "motorway_link",
+                "primary",
+                "primary_link",
+                "secondary",
+                "secondary_link",
+                "tertiary",
+                "tertiary_link",
+                "residential",
+                "unclassified",
+                "service",
+                "living_street",
+            ]
+        },
+    )
+    # filter out streets without name
+    osm = osm[osm["name"].notnull()]
+    osm = osm.loc[osm.index.get_level_values("element") == "way"]
+    sorted_streets = sorted(osm["name"].unique())
     return sorted_streets
 
 
